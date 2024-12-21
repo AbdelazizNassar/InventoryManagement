@@ -13,7 +13,7 @@ public class InventorySystem {
 
 
     public void addOrUpdateStock(String item, int quantity) {
-        item = item.trim();
+        item = normalizeItemName(item);
             if (quantity < 0) {
                 System.out.println("Quantity must be a positive number.");
                 return;
@@ -31,19 +31,15 @@ public class InventorySystem {
 
 
     public void placeOrder(String item, String quantityStr) {
-        item = item.trim();
+        item = normalizeItemName(item);
         int quantity;
 
-        try {
             quantity = Integer.parseInt(quantityStr);
             if (quantity < 0) {
                 System.out.println("Quantity must be a positive number.");
                 return;
             }
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid quantity input. Please enter a valid number.");
-            return;
-        }
+
 
         if (inventory.containsKey(item)) {
             Product product = inventory.get(item);
@@ -67,12 +63,15 @@ public class InventorySystem {
 
 
         int size = orderQueue.size();
+        if(orderQueue.isEmpty()){
+            System.out.println("No Pending Orders");
+            return;
+        }
         for (int i = 0; i < size; i++) {
             String order = orderQueue.poll();
             String[] parts = order.split(":");
             String item = parts[0];
             int quantity = Integer.parseInt(parts[1]);
-
 
             if (inventory.containsKey(item)) {
                 Product product = inventory.get(item);
@@ -91,6 +90,7 @@ public class InventorySystem {
 
     public void generateReports() {
         System.out.println("\n--- Inventory Report ---");
+
         for (Map.Entry<String, Product> entry : inventory.entrySet()) {
             System.out.println(entry.getKey() + ": " + entry.getValue().getQuantity() + " units");
         }
@@ -107,7 +107,7 @@ public class InventorySystem {
 
 
     public void deleteItem(String item) {
-        item = item.trim();
+        item = normalizeItemName(item);
         if (inventory.containsKey(item)) {
             inventory.remove(item);
             System.out.println("Item '" + item + "' removed from inventory.");
@@ -126,5 +126,10 @@ public class InventorySystem {
                 System.out.println(order);
             }
         }
+    }
+
+    // if the user enter red       apple it is equal to red apple
+    private String normalizeItemName(String itemName) {
+        return itemName.trim().replaceAll("\\s+", " ");
     }
 }
