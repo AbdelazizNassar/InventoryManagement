@@ -30,21 +30,29 @@ public class InventorySystem {
     }
 
 
-
     public void placeOrder(String item, String quantityStr) {
-
         item = item.trim();
         int quantity;
+
+        try {
             quantity = Integer.parseInt(quantityStr);
             if (quantity < 0) {
                 System.out.println("Quantity must be a positive number.");
                 return;
             }
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid quantity input. Please enter a valid number.");
+            return;
+        }
+
         if (inventory.containsKey(item)) {
             Product product = inventory.get(item);
             if (product.getQuantity() >= quantity) {
                 product.reduceStock(quantity);
                 System.out.println("Order processed: " + quantity + " units of " + item);
+
+                // Add to completed orders
+                completedOrders.push(item + ":" + quantity);
             } else {
                 orderQueue.add(item + ":" + quantity);
                 System.out.println("Order queued: " + quantity + " units of " + item);
@@ -52,9 +60,7 @@ public class InventorySystem {
         } else {
             System.out.println("Item not found in inventory.");
         }
-
     }
-
 
     public void processPendingOrders() {
         System.out.println("\nProcessing Pending Orders...");
